@@ -45,13 +45,13 @@ contract DonationBox {
     }
 
     address _admin;
+    address _cDaiAddress;
     mapping(address => Charity) charities;
     address[] charityList;
     uint totalCharities = 0;
     uint256 totalDonated;
     Erc20 _daiContract;
     CErc20 _cDaiContract;
-    address _cDaiAddress;
 
     constructor(
         address admin,
@@ -162,9 +162,6 @@ contract DonationBox {
 
         emit MyLog("Reedem result was ", redeemResult);
 
-        // bool approvalResult = _daiContract.approve(charity, amount);
-
-        // require(approvalResult, "Failed to approve");
 
         bool transferResult = _daiContract.transfer(charity, amount);
 
