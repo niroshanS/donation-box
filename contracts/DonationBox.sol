@@ -2,45 +2,45 @@
 pragma solidity ^0.8.3;
 
 interface Erc20 {
-    function approve(address, uint256) external returns (bool);
+    function approve(address, uint) external returns (bool);
 
-    function transfer(address, uint256) external returns (bool);
+    function transfer(address, uint) external returns (bool);
 
     function transferFrom(
         address,
         address,
-        uint256
+        uint
     ) external returns (bool);
 
-    function balanceOf(address) external view returns (uint256);
+    function balanceOf(address) external view returns (uint);
 }
 
 interface CErc20 {
-    function mint(uint256) external returns (uint256);
+    function mint(uint) external returns (uint);
 
     function balanceOfUnderlying(address account)
         external
         view
-        returns (uint256);
+        returns (uint);
 
-    function exchangeRateCurrent() external returns (uint256);
+    function exchangeRateCurrent() external returns (uint);
 
-    function supplyRatePerBlock() external returns (uint256);
+    function supplyRatePerBlock() external returns (uint);
 
-    function redeem(uint256) external returns (uint256);
+    function redeem(uint) external returns (uint);
 
-    function redeemUnderlying(uint256) external returns (uint256);
+    function redeemUnderlying(uint) external returns (uint);
 
-    function transfer(address, uint256) external returns (bool);
+    function transfer(address, uint) external returns (bool);
 
-    function getCash() external returns (uint256);
+    function getCash() external returns (uint);
 }
 
 contract DonationBox {
-    event MyLog(string, uint256);
+    event MyLog(string, uint);
 
     struct Charity {
-        uint256 donatedAmount;
+        uint donatedAmount;
         bool isValid;
     }
 
@@ -49,7 +49,7 @@ contract DonationBox {
     mapping(address => Charity) charities;
     address[] charityList;
     uint totalCharities = 0;
-    uint256 totalDonated;
+    uint totalDonated;
     Erc20 _daiContract;
     CErc20 _cDaiContract;
 
@@ -86,7 +86,7 @@ contract DonationBox {
         return true;
     }
 
-    function donate(address charity, uint256 _numTokensToSupply)
+    function donate(address charity, uint _numTokensToSupply)
         public
         payable
     {
@@ -96,7 +96,7 @@ contract DonationBox {
 
         require(msg.sender != charity, "Can't send fund to self");
 
-        uint256 balance = _daiContract.balanceOf(msg.sender);
+        uint balance = _daiContract.balanceOf(msg.sender);
 
         require(balance >= _numTokensToSupply, "not enough funds");
 
@@ -116,35 +116,35 @@ contract DonationBox {
         supplyErc20ToCompound(_numTokensToSupply);
     }
 
-    function supplyErc20ToCompound(uint256 _numTokensToSupply)
+    function supplyErc20ToCompound(uint _numTokensToSupply)
         public
-        returns (uint256)
+        returns (uint)
     {
         // Amount of current exchange rate from cToken to underlying
-        uint256 exchangeRateMantissa = _cDaiContract.exchangeRateCurrent();
+        uint exchangeRateMantissa = _cDaiContract.exchangeRateCurrent();
         emit MyLog("Exchange Rate (scaled up): ", exchangeRateMantissa);
 
         // Amount added to you supply balance this block
-        uint256 supplyRateMantissa = _cDaiContract.supplyRatePerBlock();
+        uint supplyRateMantissa = _cDaiContract.supplyRatePerBlock();
         emit MyLog("Supply Rate: (scaled up)", supplyRateMantissa);
 
         // Approve transfer on the ERC20 contract
         _daiContract.approve(_cDaiAddress, _numTokensToSupply);
 
         // Mint cTokens
-        uint256 mintResult = _cDaiContract.mint(_numTokensToSupply);
+        uint mintResult = _cDaiContract.mint(_numTokensToSupply);
 
         require(mintResult == 0, "Minting failed!");
 
         return mintResult;
     }
 
-    function redeem(uint256 amount) public returns (bool) {
+    function redeem(uint amount) public returns (bool) {
         address charity = msg.sender;
 
         require(charityExists(charity), "Need to be a valid charity to redeem");
 
-        uint256 availableUnderlying =
+        uint availableUnderlying =
             totalDonated * getPercentageForCharity(charity);
 
         require(
@@ -155,7 +155,7 @@ contract DonationBox {
         charities[charity].donatedAmount -= amount;
         emit MyLog("Amount was ", amount);
 
-        uint256 redeemResult;
+        uint redeemResult;
 
         // Retrieve based on underyling amount
         redeemResult = _cDaiContract.redeemUnderlying(amount);
@@ -177,7 +177,7 @@ contract DonationBox {
     function getPercentageForCharity(address charity)
         public
         view
-        returns (uint256)
+        returns (uint)
     {
         if (totalDonated == 0) {
             return 0;

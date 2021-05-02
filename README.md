@@ -14,3 +14,12 @@ TODO: Add instructions
 Here is a dmeo of what the project currently looks like
 
 ![MVP-v1](demo/donation-box-mvp.gif)
+
+## TODOs
+Think of this like a roadmap of things that need to be done. I hope to get most of these done.
+They are in no particular order
+- Look into using Aave, rDai & others
+- NFTs for donation
+- tests
+- Use Ownable instead of my own handrolled version
+
