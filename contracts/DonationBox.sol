@@ -64,7 +64,7 @@ contract DonationBox {
         _cDaiAddress = cErc20Address;
     }
 
-    function addCharity(address charity) public returns (bool success) {
+    function addCharity(address charity) external returns (bool success) {
         require(msg.sender == _admin, "Restricted action!");
         if (charityExists(charity)) {
             return true;
@@ -77,7 +77,7 @@ contract DonationBox {
         return true;
     }
 
-    function removeCharity(address charity) public returns (bool success) {
+    function removeCharity(address charity) external returns (bool success) {
         require(msg.sender == _admin, "Restricted action!");
         require(charityExists(charity), "Charity is not valid");
 
@@ -87,7 +87,7 @@ contract DonationBox {
     }
 
     function donate(address charity, uint _numTokensToSupply)
-        public
+        external
         payable
     {
         require(charityExists(charity), "Charity is not valid");
@@ -117,7 +117,7 @@ contract DonationBox {
     }
 
     function supplyErc20ToCompound(uint _numTokensToSupply)
-        public
+        private
         returns (uint)
     {
         // Amount of current exchange rate from cToken to underlying
@@ -139,7 +139,7 @@ contract DonationBox {
         return mintResult;
     }
 
-    function redeem(uint amount) public returns (bool) {
+    function redeem(uint amount) external returns (bool) {
         address charity = msg.sender;
 
         require(charityExists(charity), "Need to be a valid charity to redeem");
